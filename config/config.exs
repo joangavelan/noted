@@ -8,8 +8,11 @@
 import Config
 
 config :noted,
-  ecto_repos: [Noted.Repo],
-  generators: [timestamp_type: :utc_datetime, binary_id: true]
+  ecto_repos: [Noted.Repo]
+
+config :noted, Noted.Repo, migration_primary_key: [name: :id, type: :binary_id]
+config :noted, Noted.Repo, migration_foreign_key: [column: :id, type: :binary_id]
+config :noted, Noted.Repo, migration_timestamps: [type: :utc_datetime, inserted_at: :created_at]
 
 # Configures the endpoint
 config :noted, NotedWeb.Endpoint,
@@ -55,3 +58,19 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+config :noted, :oauth_providers,
+  google: [
+    config: [
+      client_id: System.get_env("GOOGLE_CLIENT_ID"),
+      client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+    ],
+    strategy_mod: Assent.Strategy.Google
+  ],
+  facebook: [
+    config: [
+      client_id: System.get_env("FACEBOOK_CLIENT_ID"),
+      client_secret: System.get_env("FACEBOOK_CLIENT_SECRET")
+    ],
+    strategy_mod: Assent.Strategy.Facebook
+  ]

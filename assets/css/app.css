@@ -1,3 +1,11 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+
+h1 {
+  @apply text-3xl font-semibold;
+}
+
+button {
+  @apply bg-gray-100 py-2 px-2.5 rounded border-gray-300 border;
+}
