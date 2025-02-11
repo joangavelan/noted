@@ -72,17 +72,44 @@ defmodule NotedWeb.Live.Notes.Workspace do
     {:noreply, socket}
   end
 
+  def handle_event("remove_team_member", %{"membership_id" => membership_id}, socket) do
+    user_id = socket.assigns.current_user.id
+
+    Teams.remove_team_member!(membership_id)
+
+    socket =
+      socket
+      |> update(:team_workspace, fn t -> Teams.get_team_workspace!(t.id, user_id) end)
+      |> put_flash(:info, "Member removed successfully!")
+
+    {:noreply, socket}
+  end
+
   def render(assigns) do
     ~H"""
     <.back navigate="/app">Go Back</.back>
 
     <h1>{@team_workspace.name} workspace</h1>
 
-    <ul class="list">
-      <li :for={team_membership <- @team_workspace.team_memberships}>
-        {team_membership.user.name} - {team_membership.role}
-      </li>
-    </ul>
+    <hr />
+
+    <div>
+      <h2>Members</h2>
+      <ul class="list">
+        <li :for={team_membership <- @team_workspace.team_memberships}>
+          <span>{team_membership.user.name} - {team_membership.role}</span>
+
+          <button
+            :if={team_membership.user_id != @current_user.id}
+            phx-click="remove_team_member"
+            phx-value-membership_id={team_membership.id}
+            phx-disable-with="Removing..."
+          >
+            Remove
+          </button>
+        </li>
+      </ul>
+    </div>
 
     <hr />
 

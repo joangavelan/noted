@@ -80,4 +80,14 @@ defmodule Noted.Contexts.Teams do
     })
     |> Repo.insert()
   end
+
+  def remove_team_member!(membership_id) do
+    membership = get_team_membership!(membership_id)
+
+    Repo.delete!(membership)
+  end
+
+  def get_team_membership!(id) do
+    Repo.get!(TeamMembership, id)
+  end
 end
