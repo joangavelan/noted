@@ -21,13 +21,16 @@ defmodule NotedWeb.Router do
     get "/", HomeController, :index
     get "/login", AuthController, :login_page
     post "/logout", AuthController, :logout
+    post "/teams/select", TeamController, :select
   end
 
   live_session :protected_liveviews, on_mount: NotedWeb.LiveHooks.RequireAuth do
     scope "/app", NotedWeb do
       pipe_through :browser
 
-      live "/", Live.Notes.Index
+      live "/", Live.Notes.Teams
+      live "/new-team", Live.Notes.NewTeam
+      live "/workspace", Live.Notes.Workspace
     end
   end
 

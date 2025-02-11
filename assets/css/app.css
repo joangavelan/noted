@@ -6,6 +6,26 @@ h1 {
   @apply text-3xl font-semibold;
 }
 
+h2 {
+  @apply text-2xl font-semibold;
+}
+
+h3 {
+  @apply text-xl font-semibold;
+}
+
 button {
-  @apply bg-gray-100 py-2 px-2.5 rounded border-gray-300 border;
+  @apply text-sm bg-gray-100 py-1 px-2.5 rounded border-gray-300 border;
+}
+
+button:disabled {
+  @apply opacity-50;
+}
+
+hr {
+  @apply my-2;
+}
+
+.list {
+  @apply list-disc pl-5;
 }
