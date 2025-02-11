@@ -56,16 +56,12 @@ defmodule NotedWeb.Live.Notes.Teams do
       <ul :if={@teams != []} class="list">
         <li :for={team <- @teams}>
           <span>{team.name}</span>
-          <form
-            id={team.id <> "form"}
-            action="/teams/select"
-            method="post"
-            class="inline"
-            phx-hook="TriggerLoadingScreen"
-          >
+          <form action="/teams/select" method="post" class="inline">
             <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
             <input type="hidden" name="team_id" value={team.id} />
-            <button type="submit">{">"}</button>
+            <button phx-click={JS.show(to: "#loading-screen", display: "grid")} type="submit">
+              {">"}
+            </button>
           </form>
         </li>
       </ul>
@@ -101,7 +97,7 @@ defmodule NotedWeb.Live.Notes.Teams do
       </li>
     </ul>
 
-    <.loading_screen />
+    <.loading_screen message="Loading team workspace..." />
     """
   end
 end

@@ -1,13 +1,15 @@
 defmodule NotedWeb.Components.Notes do
   use NotedWeb, :html
 
+  attr :message, :string, required: true
+
   def loading_screen(assigns) do
     ~H"""
     <div
       id="loading-screen"
       class="fixed hidden inset-0 z-50 bg-white grid place-items-center pointer-events-none"
     >
-      Loading team workspace...
+      {@message}
     </div>
     """
   end
