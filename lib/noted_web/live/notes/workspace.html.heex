@@ -5,6 +5,22 @@
 <hr />
 
 <div>
+  <p>Hello {@current_user.name}!</p>
+
+  <form action="/teams/leave-team" method="post">
+    <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+    <input type="hidden" name="_method" value="delete" />
+    <input type="hidden" name="user_id" value={@current_user.id} />
+    <input type="hidden" name="team_id" value={@team_workspace.id} />
+    <button phx-click={JS.show(to: "#loading-screen", display: "grid")} type="submit">
+      Leave Team
+    </button>
+  </form>
+</div>
+
+<hr />
+
+<div>
   <h2>Members</h2>
   <ul class="list">
     <li :for={team_membership <- @team_workspace.team_memberships}>
@@ -48,3 +64,5 @@
     </li>
   </ul>
 </div>
+
+<.loading_screen message="Leaving team..." />
