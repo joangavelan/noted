@@ -9,6 +9,8 @@ defmodule NotedWeb.Live.Notes.Teams do
     invitations = Invitations.list_user_invitations(user_id)
     socket = assign(socket, teams: teams, invitations: invitations)
 
+    Phoenix.PubSub.subscribe(Noted.PubSub, "users:#{user_id}")
+
     {:ok, socket}
   end
 
@@ -16,7 +18,13 @@ defmodule NotedWeb.Live.Notes.Teams do
     user_id = socket.assigns.current_user.id
 
     case Invitations.accept_invitation(invitation_id) do
-      {:ok, _operation_results} ->
+      {:ok, %{add_team_membership: new_membership} = _operations_performed} ->
+        Phoenix.PubSub.broadcast(
+          Noted.PubSub,
+          "workspace:#{new_membership.team_id}",
+          :update_team_workspace
+        )
+
         socket =
           socket
           |> put_flash(:info, "Sucessfully joined the team!")
@@ -35,11 +43,36 @@ defmodule NotedWeb.Live.Notes.Teams do
   def handle_event("decline_invitation", %{"invitation_id" => invitation_id}, socket) do
     user_id = socket.assigns.current_user.id
 
-    Invitations.decline_or_cancel_invitation!(invitation_id)
+    case Invitations.decline_or_cancel_invitation(invitation_id) do
+      {:ok, declined_or_canceled_invitation} ->
+        Phoenix.PubSub.broadcast(
+          Noted.PubSub,
+          "workspace:#{declined_or_canceled_invitation.team_id}",
+          :update_team_workspace
+        )
 
-    socket = update(socket, :invitations, fn _ -> Invitations.list_user_invitations(user_id) end)
+        socket =
+          update(socket, :invitations, fn _ -> Invitations.list_user_invitations(user_id) end)
+
+        {:noreply, socket}
+
+      {:error, _changeset} ->
+        socket = put_flash(socket, :error, "An unexpected error occurred")
+
+        {:noreply, socket}
+    end
+  end
+
+  def handle_info(:update_user_invitations, socket) do
+    user_id = socket.assigns.current_user.id
+    invitations = Invitations.list_user_invitations(user_id)
+    socket = update(socket, :invitations, fn _ -> invitations end)
 
     {:noreply, socket}
+  end
+
+  def handle_info({:force_team_logout, _removed_team_id}, socket) do
+    {:noreply, redirect(socket, to: "/teams/logout-team")}
   end
 
   def render(assigns) do

@@ -42,10 +42,10 @@ defmodule Noted.Contexts.Invitations do
     |> Repo.transaction()
   end
 
-  def decline_or_cancel_invitation!(invitation_id) do
+  def decline_or_cancel_invitation(invitation_id) do
     invitation = get_invitation!(invitation_id)
 
-    Repo.delete!(invitation)
+    Repo.delete(invitation)
   end
 
   def get_invitation!(invitation_id) do
