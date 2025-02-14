@@ -47,22 +47,26 @@
 
   <hr />
 
-  <h2>Invitations Sent</h2>
+  <div>
+    <h2>Invitations Sent</h2>
 
-  <ul :if={@team_workspace.invitations != []}>
-    <li :for={invitation <- @team_workspace.invitations} class="flex gap-4">
-      <div class="flex gap-1.5">
-        <span>{invitation.invited_user.name}</span>
-      </div>
-      <button
-        phx-click="cancel_invitation"
-        phx-value-invitation_id={invitation.id}
-        phx-disable-with="Canceling..."
-      >
-        Cancel
-      </button>
-    </li>
-  </ul>
+    <ul :if={@team_workspace.invitations != []}>
+      <li :for={invitation <- @team_workspace.invitations} class="flex gap-4">
+        <div class="flex gap-1.5">
+          <span>{invitation.invited_user.name}</span>
+        </div>
+        <button
+          phx-click="cancel_invitation"
+          phx-value-invitation_id={invitation.id}
+          phx-disable-with="Canceling..."
+        >
+          Cancel
+        </button>
+      </li>
+    </ul>
+
+    <p :if={@team_workspace.invitations == []}>No invitations has been sent</p>
+  </div>
 </div>
 
 <.loading_screen message="Leaving team..." />
