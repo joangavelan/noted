@@ -22,10 +22,14 @@ defmodule NotedWeb.Router do
 
     get "/login", AuthController, :login_page
     post "/logout", AuthController, :logout
+  end
 
-    post "/teams/select", TeamController, :select
-    delete "/teams/leave-team", TeamController, :leave_team
-    get "/teams/logout-team", TeamController, :logout_team
+  scope "/team", NotedWeb do
+    pipe_through [:browser, :is_authenticated]
+
+    post "/select", TeamController, :select
+    delete "/leave", TeamController, :leave
+    get "/logout", TeamController, :logout
   end
 
   live_session :protected_liveviews, on_mount: NotedWeb.LiveHooks.RequireAuth do

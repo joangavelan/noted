@@ -72,7 +72,7 @@ defmodule NotedWeb.Live.Notes.Teams do
   end
 
   def handle_info({:force_team_logout, _removed_team_id}, socket) do
-    {:noreply, redirect(socket, to: "/teams/logout-team")}
+    {:noreply, redirect(socket, to: "/team/logout")}
   end
 
   def render(assigns) do
@@ -89,7 +89,7 @@ defmodule NotedWeb.Live.Notes.Teams do
       <ul :if={@teams != []} class="list">
         <li :for={team <- @teams}>
           <span>{team.name}</span>
-          <form action="/teams/select" method="post" class="inline">
+          <form action="/team/select" method="post" class="inline">
             <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
             <input type="hidden" name="team_id" value={team.id} />
             <button phx-click={JS.show(to: "#loading-screen", display: "grid")} type="submit">

@@ -149,7 +149,7 @@ defmodule NotedWeb.Live.Notes.Workspace do
     current_team_id = socket.assigns.team_workspace.id
 
     if current_team_id == removed_team_id do
-      {:noreply, redirect(socket, to: "/teams/logout-team")}
+      {:noreply, redirect(socket, to: "/team/logout")}
     else
       {:noreply, socket}
     end

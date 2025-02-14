@@ -7,7 +7,7 @@
 <div>
   <p>Hello {@current_user.name}!</p>
 
-  <form action="/teams/leave-team" method="post">
+  <form action="/team/leave" method="post">
     <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
     <input type="hidden" name="_method" value="delete" />
     <input type="hidden" name="user_id" value={@current_user.id} />
