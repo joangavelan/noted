@@ -23,4 +23,25 @@ defmodule NotedWeb.TeamController do
     |> delete_session(:team_id)
     |> redirect(to: "/app")
   end
+
+  def delete(conn, %{"team_id" => team_id}) do
+    case Teams.delete_team(team_id) do
+      {:ok, deleted_team} ->
+        Phoenix.PubSub.broadcast(
+          Noted.PubSub,
+          "workspace:#{deleted_team.id}",
+          {:force_team_logout, deleted_team.id}
+        )
+
+        conn
+        |> put_flash(:info, "Team #{deleted_team.name} deleted successfully!")
+        |> delete_session(:team_id)
+        |> redirect(to: "/app")
+
+      {:error, _changeset} ->
+        conn
+        |> put_flash(:error, "An unexpected error ocurred")
+        |> redirect(to: "/app/workspace")
+    end
+  end
 end

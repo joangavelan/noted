@@ -96,4 +96,10 @@ defmodule Noted.Contexts.Teams do
   def get_team_membership!(id) do
     Repo.get!(TeamMembership, id)
   end
+
+  def delete_team(id) do
+    team = Repo.get!(Team, id)
+
+    Repo.delete(team)
+  end
 end

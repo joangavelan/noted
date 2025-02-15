@@ -67,6 +67,21 @@
 
     <p :if={@team_workspace.invitations == []}>No invitations has been sent</p>
   </div>
+
+  <hr />
+
+  <form action="/team/delete" method="post">
+    <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+    <input type="hidden" name="_method" value="delete" />
+    <input type="hidden" name="team_id" value={@team_workspace.id} />
+    <button
+      phx-click={JS.show(to: "#loading-screen", display: "grid")}
+      class="bg-red-500 text-white border-red-500 hover:bg-red-600 transition-colors"
+      type="submit"
+    >
+      Delete team
+    </button>
+  </form>
 </div>
 
 <.loading_screen message="Leaving team..." />

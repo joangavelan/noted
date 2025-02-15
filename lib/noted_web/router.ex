@@ -30,6 +30,7 @@ defmodule NotedWeb.Router do
     post "/select", TeamController, :select
     delete "/leave", TeamController, :leave
     get "/logout", TeamController, :logout
+    delete "/delete", TeamController, :delete
   end
 
   live_session :protected_liveviews, on_mount: NotedWeb.LiveHooks.RequireAuth do
