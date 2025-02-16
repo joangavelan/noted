@@ -136,6 +136,31 @@ defmodule NotedWeb.Live.Notes.Workspace do
     end
   end
 
+  def handle_event("change_role", %{"membership_id" => membership_id, "role" => new_role}, socket) do
+    user_id = socket.assigns.current_user.id
+
+    case Teams.change_member_role(membership_id, new_role) do
+      {:ok, updated_membership} ->
+        Phoenix.PubSub.broadcast(
+          Noted.PubSub,
+          "workspace:#{updated_membership.team_id}",
+          :update_team_workspace
+        )
+
+        socket =
+          socket
+          |> put_flash(:info, "User role updated successfully!")
+          |> update(:team_workspace, fn tw -> Teams.get_team_workspace!(tw.id, user_id) end)
+
+        {:noreply, socket}
+
+      {:error, _changeset} ->
+        socket = put_flash(socket, :error, "An error occurred")
+
+        {:noreply, socket}
+    end
+  end
+
   def handle_info(:update_team_workspace, socket) do
     user_id = socket.assigns.current_user.id
 

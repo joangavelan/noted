@@ -93,6 +93,14 @@ defmodule Noted.Contexts.Teams do
     |> Repo.delete!()
   end
 
+  def change_member_role(membership_id, new_role) do
+    membership = get_team_membership!(membership_id)
+
+    membership
+    |> TeamMembership.changeset(%{role: new_role})
+    |> Repo.update()
+  end
+
   def get_team_membership!(id) do
     Repo.get!(TeamMembership, id)
   end

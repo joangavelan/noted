@@ -24,16 +24,33 @@
   <h2>Members</h2>
   <ul class="list">
     <li :for={team_membership <- @team_workspace.team_memberships}>
-      <span>{team_membership.user.name} - {team_membership.role}</span>
+      <div class="flex gap-2 items-center">
+        <p>
+          {team_membership.user.name}
+          <span :if={@current_user.id == team_membership.user.id}>
+            - {team_membership.role}
+          </span>
+        </p>
 
-      <button
-        :if={team_membership.user_id != @current_user.id}
-        phx-click="remove_team_member"
-        phx-value-membership_id={team_membership.id}
-        phx-disable-with="Removing..."
-      >
-        Remove
-      </button>
+        <div :if={@current_user.id != team_membership.user.id} class="flex">
+          <form phx-submit="change_role">
+            <input type="hidden" name="membership_id" value={team_membership.id} />
+            <select name="role">
+              <option value="admin" selected={team_membership.role == :admin}>admin</option>
+              <option value="member" selected={team_membership.role == :member}>member</option>
+            </select>
+            <button phx-disable-with="Updating...">Update</button>
+          </form>
+
+          <button
+            phx-click="remove_team_member"
+            phx-value-membership_id={team_membership.id}
+            phx-disable-with="Removing..."
+          >
+            Remove
+          </button>
+        </div>
+      </div>
     </li>
   </ul>
 </div>

@@ -29,3 +29,7 @@ hr {
 .list {
   @apply list-disc pl-5;
 }
+
+select {
+  @apply text-sm pl-2 py-1 border-gray-300;
+}
