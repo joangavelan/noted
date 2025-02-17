@@ -130,6 +130,8 @@ defmodule NotedWeb.Live.Notes.Teams do
       </li>
     </ul>
 
+    <p :if={@invitations == []}>No invitations</p>
+
     <.loading_screen message="Loading team workspace..." />
     """
   end
