@@ -1,5 +1,6 @@
 defmodule NotedWeb.Router do
   use NotedWeb, :router
+  alias NotedWeb.LiveHooks
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -39,6 +40,13 @@ defmodule NotedWeb.Router do
 
       live "/", Live.Notes.Teams
       live "/new-team", Live.Notes.NewTeam
+    end
+  end
+
+  live_session :tenant_liveviews,
+    on_mount: [LiveHooks.RequireAuth, {LiveHooks.RequireAuth, :ensure_is_team_member}] do
+    scope "/app", NotedWeb do
+      pipe_through :browser
       live "/workspace", Live.Notes.Workspace
     end
   end

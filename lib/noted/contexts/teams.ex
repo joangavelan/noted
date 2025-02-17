@@ -108,6 +108,22 @@ defmodule Noted.Contexts.Teams do
     end
   end
 
+  def get_team_member(user_id, team_id) do
+    query =
+      from u in User,
+        join: tm in TeamMembership,
+        on: tm.user_id == u.id,
+        where: u.id == ^user_id and tm.team_id == ^team_id,
+        select: %{
+          id: u.id,
+          name: u.name,
+          picture: u.picture,
+          role: tm.role
+        }
+
+    Repo.one(query)
+  end
+
   def change_member_role(membership_id, new_role) do
     membership = get_team_membership!(membership_id)
 

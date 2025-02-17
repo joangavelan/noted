@@ -3,8 +3,7 @@ defmodule NotedWeb.Live.Notes.Workspace do
   alias Noted.Contexts.{Teams, Invitations}
   import NotedWeb.Components.Notes
 
-  def mount(_params, %{"team_id" => team_id}, socket) do
-    user_id = socket.assigns.current_user.id
+  def mount(_params, %{"user_id" => user_id, "team_id" => team_id}, socket) do
     team_workspace = Teams.get_team_workspace!(team_id, user_id)
 
     socket =
@@ -110,10 +109,10 @@ defmodule NotedWeb.Live.Notes.Workspace do
 
     case Teams.remove_team_member(membership_id) do
       {:ok, removed_membership} ->
-        Phoenix.PubSub.broadcast(
-          Noted.PubSub,
-          "users:#{removed_membership.user_id}",
-          {:force_team_logout, removed_membership.team_id}
+        NotedWeb.Endpoint.broadcast(
+          "users_socket:#{removed_membership.user_id}",
+          "disconnect",
+          %{}
         )
 
         Phoenix.PubSub.broadcast(
@@ -141,10 +140,10 @@ defmodule NotedWeb.Live.Notes.Workspace do
 
     case Teams.change_member_role(membership_id, new_role) do
       {:ok, updated_membership} ->
-        Phoenix.PubSub.broadcast(
-          Noted.PubSub,
-          "workspace:#{updated_membership.team_id}",
-          :update_team_workspace
+        NotedWeb.Endpoint.broadcast(
+          "users_socket:#{updated_membership.user_id}",
+          "disconnect",
+          %{}
         )
 
         socket =

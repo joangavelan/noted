@@ -32,6 +32,7 @@ defmodule NotedWeb.OAuth2Controller do
            }) do
       conn
       |> put_session(:user_id, upserted_user.id)
+      |> put_session(:live_socket_id, "users_socket:#{upserted_user.id}")
       |> put_flash(:info, "Sucessfully authenticated!")
       |> redirect(to: "/app")
     else
