@@ -15,13 +15,27 @@ defmodule NotedWeb.TeamController do
   end
 
   def leave(conn, %{"user_id" => user_id, "team_id" => team_id}) do
-    Teams.remove_team_member!(user_id, team_id)
+    with true <- Teams.is_last_team_member?(user_id, team_id),
+         {:ok, _deleted_team} <- Teams.delete_team(team_id) do
+      conn
+      |> put_flash(:info, "You have left the team")
+      |> delete_session(:team_id)
+      |> redirect(to: "/app")
+    else
+      false ->
+        Teams.remove_team_member!(user_id, team_id)
+        Phoenix.PubSub.broadcast(Noted.PubSub, "workspace:#{team_id}", :update_team_workspace)
 
-    Phoenix.PubSub.broadcast(Noted.PubSub, "workspace:#{team_id}", :update_team_workspace)
+        conn
+        |> put_flash(:info, "You have left the team")
+        |> delete_session(:team_id)
+        |> redirect(to: "/app")
 
-    conn
-    |> delete_session(:team_id)
-    |> redirect(to: "/app")
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "An unexpected error occurred")
+        |> redirect(to: "/app/workspace")
+    end
   end
 
   def delete(conn, %{"team_id" => team_id}) do

@@ -93,6 +93,21 @@ defmodule Noted.Contexts.Teams do
     |> Repo.delete!()
   end
 
+  def is_last_team_member?(user_id, team_id) do
+    query =
+      from tm in TeamMembership,
+        where: tm.team_id == ^team_id,
+        select: tm.user_id,
+        limit: 2
+
+    case Repo.all(query) do
+      # When the only team member returned is the given user_id,
+      # the list will contain exactly one element that matches.
+      [^user_id] -> true
+      _ -> false
+    end
+  end
+
   def change_member_role(membership_id, new_role) do
     membership = get_team_membership!(membership_id)
 
