@@ -13,8 +13,7 @@ defmodule NotedWeb.AuthController do
 
   def logout(conn, _params) do
     conn
-    |> delete_session(:user_id)
-    |> put_flash(:info, "Logged out successfully!")
+    |> configure_session(drop: true)
     |> redirect(to: "/login")
   end
 end
