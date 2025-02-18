@@ -26,7 +26,7 @@ defmodule NotedWeb.Components.Notes do
           name="query"
           type="text"
           placeholder="Search users..."
-          class="w-full"
+          class="w-full rounded-lg text-zinc-900 focus:ring-0 text-sm"
           phx-debounce="300"
           value={@search_query}
           autocomplete="off"
