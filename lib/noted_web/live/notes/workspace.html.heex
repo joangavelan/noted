@@ -1,8 +1,10 @@
 <.back navigate="/app">Go Back</.back>
 
-<h1>{@team_workspace.name} workspace</h1>
+<div>
+  <h1>{@team_workspace.name} workspace</h1>
 
-<hr />
+  <hr />
+</div>
 
 <div>
   <p>Hello {@current_user.name}!</p>
@@ -16,54 +18,59 @@
       Leave Team
     </button>
   </form>
-</div>
 
-<hr />
+  <hr />
+</div>
 
 <div>
   <h2>Members</h2>
+
   <ul class="list">
     <li :for={team_membership <- @team_workspace.team_memberships}>
       <div class="flex gap-2 items-center">
-        <p>
+        <span>
           {team_membership.user.name}
-          <span :if={@current_user.id == team_membership.user.id}>
-            - {team_membership.role}
-          </span>
-        </p>
+        </span>
+        <%= if can(@current_user.role) |> update?(TeamMembership) and can(@current_user.role) |> delete?(TeamMembership) and @current_user.id != team_membership.user.id do %>
+          <div class="flex">
+            <form phx-submit="change_role">
+              <input type="hidden" name="membership_id" value={team_membership.id} />
+              <select name="role">
+                <option value="admin" selected={team_membership.role == :admin}>admin</option>
+                <option value="member" selected={team_membership.role == :member}>member</option>
+              </select>
+              <button phx-disable-with="Updating...">Update</button>
+            </form>
 
-        <div :if={@current_user.id != team_membership.user.id} class="flex">
-          <form phx-submit="change_role">
-            <input type="hidden" name="membership_id" value={team_membership.id} />
-            <select name="role">
-              <option value="admin" selected={team_membership.role == :admin}>admin</option>
-              <option value="member" selected={team_membership.role == :member}>member</option>
-            </select>
-            <button phx-disable-with="Updating...">Update</button>
-          </form>
-
-          <button
-            phx-click="remove_team_member"
-            phx-value-membership_id={team_membership.id}
-            phx-disable-with="Removing..."
-          >
-            Remove
-          </button>
-        </div>
+            <button
+              phx-click="remove_team_member"
+              phx-value-membership_id={team_membership.id}
+              phx-disable-with="Removing..."
+            >
+              Remove
+            </button>
+          </div>
+        <% else %>
+          <span>- {team_membership.role}</span>
+        <% end %>
       </div>
     </li>
   </ul>
-</div>
-
-<hr />
-
-<div>
-  <h2>Invite Users</h2>
-
-  <.search_users_to_invite_box search_query={@search_query} search_results={@search_results} />
 
   <hr />
+</div>
 
+<%= if can(@current_user.role) |> create?(Invitation) do %>
+  <div>
+    <h2>Invite Users</h2>
+
+    <.search_users_to_invite_box search_query={@search_query} search_results={@search_results} />
+  </div>
+
+  <hr />
+<% end %>
+
+<%= if can(@current_user.role) |> read?(Invitation) do %>
   <div>
     <h2>Invitations Sent</h2>
 
@@ -86,7 +93,9 @@
   </div>
 
   <hr />
+<% end %>
 
+<%= if can(@current_user.role) |> delete?(Team) do %>
   <form action="/team/delete" method="post">
     <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
     <input type="hidden" name="_method" value="delete" />
@@ -99,6 +108,6 @@
       Delete team
     </button>
   </form>
-</div>
+<% end %>
 
 <.loading_screen message="Leaving team..." />
