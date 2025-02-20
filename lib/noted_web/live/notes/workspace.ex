@@ -1,6 +1,6 @@
 defmodule NotedWeb.Live.Notes.Workspace do
   use NotedWeb, :live_view
-  alias Noted.Contexts.{Teams, Invitations}
+  alias Noted.Contexts.{Teams, Invitations, Notes}
   alias Noted.Schemas.{Team, Invitation, TeamMembership}
   import NotedWeb.Components.Notes
   import Noted.Authorization
@@ -47,7 +47,7 @@ defmodule NotedWeb.Live.Notes.Workspace do
     current_user = socket.assigns.current_user
     team_id = socket.assigns.team_workspace.id
 
-    with true <- can(current_user.role) |> create?(Invitation),
+    with true <- can(current_user) |> create?(Invitation),
          {:ok, invitation} <- Invitations.invite_user(invited_user_id, current_user.id, team_id) do
       Phoenix.PubSub.broadcast(
         Noted.PubSub,
@@ -112,7 +112,7 @@ defmodule NotedWeb.Live.Notes.Workspace do
   def handle_event("remove_team_member", %{"membership_id" => membership_id}, socket) do
     current_user = socket.assigns.current_user
 
-    with true <- can(current_user.role) |> delete?(TeamMembership),
+    with true <- can(current_user) |> delete?(TeamMembership),
          {:ok, removed_membership} <- Teams.remove_team_member(membership_id) do
       NotedWeb.Endpoint.broadcast(
         "users_socket:#{removed_membership.user_id}",
@@ -144,7 +144,7 @@ defmodule NotedWeb.Live.Notes.Workspace do
   def handle_event("change_role", %{"membership_id" => membership_id, "role" => new_role}, socket) do
     current_user = socket.assigns.current_user
 
-    with true <- can(current_user.role) |> update?(TeamMembership),
+    with true <- can(current_user) |> update?(TeamMembership),
          {:ok, updated_membership} <- Teams.change_member_role(membership_id, new_role) do
       NotedWeb.Endpoint.broadcast(
         "users_socket:#{updated_membership.user_id}",
@@ -164,6 +164,33 @@ defmodule NotedWeb.Live.Notes.Workspace do
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "An error occurred")}
+    end
+  end
+
+  def handle_event("delete_note", %{"note_id" => note_id}, socket) do
+    current_user = socket.assigns.current_user
+    note = Notes.get_note!(note_id)
+
+    with true <- can(current_user) |> delete?(note),
+         {:ok, deleted_noted} <- Notes.delete_note(note) do
+      Phoenix.PubSub.broadcast(
+        Noted.PubSub,
+        "workspace:#{deleted_noted.team_id}",
+        :update_team_workspace
+      )
+
+      socket =
+        socket
+        |> put_flash(:info, "Note deleted successfully!")
+        |> update(:team_workspace, fn tw -> Teams.get_team_workspace!(tw.id, current_user.id) end)
+
+      {:noreply, socket}
+    else
+      false ->
+        {:noreply, put_flash(socket, :error, "You are not allowed to perform this action")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "An unexpected error occurred")}
     end
   end
 

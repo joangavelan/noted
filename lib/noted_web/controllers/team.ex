@@ -44,7 +44,7 @@ defmodule NotedWeb.TeamController do
     user_id = conn.assigns.current_user.id
     team_member = Teams.get_team_member(user_id, team_id)
 
-    with true <- can(team_member.role) |> delete?(Team),
+    with true <- can(team_member) |> delete?(Team),
          {:ok, deleted_team} <- Teams.delete_team(team_id) do
       Phoenix.PubSub.broadcast(
         Noted.PubSub,

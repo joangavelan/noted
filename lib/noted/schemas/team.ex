@@ -1,13 +1,14 @@
 defmodule Noted.Schemas.Team do
   use Noted.Schema
   import Ecto.Changeset
-  alias Noted.Schemas.{TeamMembership, Invitation}
+  alias Noted.Schemas.{TeamMembership, Invitation, Note}
 
   schema "teams" do
     field :name, :string
 
     has_many :team_memberships, TeamMembership
     has_many :invitations, Invitation
+    has_many :notes, Note
 
     timestamps()
   end

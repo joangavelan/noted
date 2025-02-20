@@ -48,6 +48,8 @@ defmodule NotedWeb.Router do
     scope "/app", NotedWeb do
       pipe_through :browser
       live "/workspace", Live.Notes.Workspace
+      live "/workspace/create-note", Live.Notes.CreateNote
+      live "/workspace/notes/:id/edit", Live.Notes.EditNote
     end
   end
 

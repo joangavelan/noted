@@ -33,19 +33,29 @@ defmodule Noted.Contexts.Teams do
     query =
       from t in Team,
         where: t.id == ^team_id,
-        # Ensure the user is a member by verifying at least one membership record exists for them.
+        # Ensure the user is a member by checking for an existing team_membership record.
         where:
           fragment(
             "EXISTS (SELECT 1 FROM team_memberships tm WHERE tm.team_id = ? AND tm.user_id = ?)",
             t.id,
             type(^user_id, :binary_id)
           ),
-        # Join memberships and preload them along with the associated user data.
+        # Preload team memberships and the associated user.
         left_join: tm in assoc(t, :team_memberships),
         left_join: tm_u in assoc(tm, :user),
+        # Preload invitations and the invited user.
         left_join: inv in assoc(t, :invitations),
         left_join: inv_u in assoc(inv, :invited_user),
-        preload: [team_memberships: {tm, user: tm_u}, invitations: {inv, invited_user: inv_u}]
+        # Preload notes.
+        left_join: n in assoc(t, :notes),
+        # Join the note’s team_membership.
+        left_join: n_tm in assoc(n, :team_membership),
+        left_join: n_tm_u in assoc(n_tm, :user),
+        preload: [
+          team_memberships: {tm, user: tm_u},
+          invitations: {inv, invited_user: inv_u},
+          notes: {n, team_membership: {n_tm, user: n_tm_u}}
+        ]
 
     Repo.one!(query)
   end
@@ -118,7 +128,8 @@ defmodule Noted.Contexts.Teams do
           id: u.id,
           name: u.name,
           picture: u.picture,
-          role: tm.role
+          role: tm.role,
+          membership_id: tm.id
         }
 
     Repo.one(query)

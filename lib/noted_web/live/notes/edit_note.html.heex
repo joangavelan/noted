@@ -1,0 +1,9 @@
+<.back navigate="/app/workspace">Go Back</.back>
+
+<h1>Edit Note</h1>
+
+<.form for={@form} phx-submit="update_note" class="max-w-48">
+  <input type="hidden" name="note[id]" value={@form.data.id} />
+  <.input field={@form[:description]} label="Note" />
+  <button phx-disable-with="Updating...">Update Note</button>
+</.form>

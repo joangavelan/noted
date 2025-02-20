@@ -31,7 +31,7 @@
         <span>
           {team_membership.user.name}
         </span>
-        <%= if can(@current_user.role) |> update?(TeamMembership) and can(@current_user.role) |> delete?(TeamMembership) and @current_user.id != team_membership.user.id do %>
+        <%= if can(@current_user) |> update?(TeamMembership) and can(@current_user) |> delete?(TeamMembership) and @current_user.id != team_membership.user.id do %>
           <div class="flex">
             <form phx-submit="change_role">
               <input type="hidden" name="membership_id" value={team_membership.id} />
@@ -60,7 +60,7 @@
   <hr />
 </div>
 
-<%= if can(@current_user.role) |> create?(Invitation) do %>
+<%= if can(@current_user) |> create?(Invitation) do %>
   <div>
     <h2>Invite Users</h2>
 
@@ -70,7 +70,7 @@
   <hr />
 <% end %>
 
-<%= if can(@current_user.role) |> read?(Invitation) do %>
+<%= if can(@current_user) |> read?(Invitation) do %>
   <div>
     <h2>Invitations Sent</h2>
 
@@ -95,8 +95,37 @@
   <hr />
 <% end %>
 
-<%= if can(@current_user.role) |> delete?(Team) do %>
-  <form action="/team/delete" method="post">
+<div>
+  <h2>Notes</h2>
+
+  <ul :if={@team_workspace.notes != []} class="list">
+    <li :for={note <- @team_workspace.notes}>
+      <span>{note.description} - {note.team_membership.user.name}</span>
+      <%= if can(@current_user) |> update?(note) do %>
+        <.link navigate={"/app/workspace/notes/#{note.id}/edit"}>
+          <button>Edit</button>
+        </.link>
+      <% end %>
+
+      <%= if can(@current_user) |> delete?(note) do %>
+        <button phx-click="delete_note" phx-value-note_id={note.id} phx-disable-with="Deleting...">
+          Delete
+        </button>
+      <% end %>
+    </li>
+  </ul>
+
+  <p :if={@team_workspace.notes == []}>No notes in this team yet</p>
+
+  <.link navigate="/app/workspace/create-note">
+    <button>Create Note</button>
+  </.link>
+
+  <hr />
+</div>
+
+<%= if can(@current_user) |> delete?(Team) do %>
+  <form action="/team/delete" method="post" class="absolute bottom-2">
     <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
     <input type="hidden" name="_method" value="delete" />
     <input type="hidden" name="team_id" value={@team_workspace.id} />
