@@ -1,6 +1,8 @@
-# Noted
+ # Noted
 
 This is a multi-tenant notes application built with the Phoenix Framework, featuring OAuth2 authentication via Google and Facebook, Role-Based Access Control (RBAC), real-time updates with Phoenix PubSub, and multi-tenancy using foreign keys.
+
+https://github.com/user-attachments/assets/92b1903a-f3e9-435f-b9e1-121530458b40
 
 ## Features
 
