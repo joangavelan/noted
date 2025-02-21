@@ -12,6 +12,10 @@ https://github.com/user-attachments/assets/92b1903a-f3e9-435f-b9e1-121530458b40
 - **Real-Time Updates**: Instant updates across tenants using Phoenix PubSub.
 - **Notes Management**: Create, edit, delete, and organize notes within a tenant.
 
+## Entity-Relationship Diagram (ERD)
+
+![ERD](https://github.com/user-attachments/assets/2f978bff-89f8-41d3-8945-d588028d6f09)
+
 ## Prerequisites
 
 Before setting up the application, ensure you have the following installed:
